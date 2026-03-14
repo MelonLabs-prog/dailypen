@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DailyPen – Write Your Way to Better English</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="container">
+
+    <!-- Step 0: Landing -->
+    <section id="landingSection" class="step-section">
+      <header class="landing-header">
+        <h1>✏️ DailyPen</h1>
+        <p class="subtitle">Write your way to better English — one journal entry at a time.</p>
+      </header>
+      <div class="landing-features">
+        <div class="feature-item">💡 Get inspired with daily prompts</div>
+        <div class="feature-item">🌍 Write about trending topics</div>
+        <div class="feature-item">🤖 Get gentle AI feedback</div>
+      </div>
+      <button id="startBtn" class="btn btn-primary btn-large">Start Today's Journal ✨</button>
+    </section>
+
+    <!-- Step 1: Prompt Selection -->
+    <section id="promptSection" class="step-section" hidden>
+      <div class="step-header">
+        <button id="backToLanding" class="btn-back" aria-label="Back">←</button>
+        <h2>Choose a Prompt</h2>
+      </div>
+
+      <div class="prompt-tabs">
+        <button class="prompt-tab active" data-category="reflect">💭 Reflect</button>
+        <button class="prompt-tab" data-category="world">🌍 World</button>
+        <button class="prompt-tab" data-category="random">🎲 Random</button>
+      </div>
+
+      <div id="promptLoading" class="prompt-loading">
+        <div class="spinner"></div>
+        <p>Loading today's prompts...</p>
+      </div>
+
+      <div id="promptList" class="prompt-list" hidden></div>
+
+      <div class="prompt-actions">
+        <button id="freeWriteBtn" class="btn btn-secondary">Or just free-write →</button>
+      </div>
+    </section>
+
+    <!-- Step 2: Writing -->
+    <section id="writeSection" class="step-section" hidden>
+      <div class="step-header">
+        <button id="backToPrompts" class="btn-back" aria-label="Back">←</button>
+        <h2>Write Your Journal</h2>
+      </div>
+
+      <!-- Selected prompt display -->
+      <div id="selectedPrompt" class="selected-prompt" hidden>
+        <p id="selectedPromptText"></p>
+      </div>
+
+      <!-- Vocab boost panel -->
+      <div id="vocabPanel" class="vocab-panel" hidden>
+        <div class="vocab-header">
+          <span>📚 Try using these words</span>
+          <button id="vocabToggle" class="vocab-toggle" aria-label="Toggle vocab">▼</button>
+        </div>
+        <div id="vocabList" class="vocab-list"></div>
+      </div>
+
+      <!-- Main writing area -->
+      <div class="write-area">
+        <textarea id="journalInput" class="journal-input" placeholder="Start writing your journal entry here..." maxlength="5000" rows="10"></textarea>
+        <div class="write-meta">
+          <span id="wordCount" class="word-count">0 words</span>
+          <span id="writeTimer" class="write-timer">0:00</span>
+        </div>
+      </div>
+
+      <!-- Native language lifeline -->
+      <div class="lifeline-section">
+        <button id="lifelineToggle" class="lifeline-toggle">
+          🌐 Help me say this in English
+        </button>
+        <div id="lifelinePanel" class="lifeline-panel" hidden>
+          <div class="lifeline-inputs">
+            <select id="nativeLang" class="native-lang-select">
+              <option value="Chinese">中文 Chinese</option>
+              <option value="Japanese">日本語 Japanese</option>
+              <option value="Korean">한국어 Korean</option>
+              <option value="Spanish">Español Spanish</option>
+              <option value="Portuguese">Português Portuguese</option>
+              <option value="French">Français French</option>
+              <option value="German">Deutsch German</option>
+              <option value="Arabic">العربية Arabic</option>
+              <option value="Thai">ไทย Thai</option>
+              <option value="Vietnamese">Tiếng Việt Vietnamese</option>
+              <option value="Indonesian">Bahasa Indonesia</option>
+              <option value="Russian">Русский Russian</option>
+            </select>
+            <div class="lifeline-input-row">
+              <input id="nativeInput" type="text" class="native-input" placeholder="Type what you want to say..." maxlength="500" />
+              <button id="lifelineHelpBtn" class="btn btn-small btn-primary">Help me</button>
+            </div>
+          </div>
+          <!-- AI response cards stack here -->
+          <div id="lifelineResults" class="lifeline-results"></div>
+        </div>
+      </div>
+
+      <button id="submitJournalBtn" class="btn btn-primary btn-large">Get Feedback ✨</button>
+    </section>
+
+    <!-- Step 3: Loading -->
+    <section id="loadingSection" class="step-section" hidden>
+      <div class="spinner"></div>
+      <p id="loadingText">Reading your journal and preparing feedback...</p>
+    </section>
+
+    <!-- Step 4: Feedback -->
+    <section id="feedbackSection" class="step-section" hidden>
+      <div class="step-header">
+        <h2>Your Feedback</h2>
+      </div>
+
+      <!-- Well done message -->
+      <div id="wellDoneCard" class="card welldone-card">
+        <p id="wellDoneText"></p>
+      </div>
+
+      <!-- Score Card -->
+      <div class="card score-card">
+        <div class="score-card-top">
+          <div id="scoreCircle" class="score-circle">
+            <span id="scoreNumber" class="score-number"></span>
+            <span class="score-denom">/100</span>
+          </div>
+          <p id="scoreLabel" class="score-label"></p>
+        </div>
+        <div class="sub-scores">
+          <div class="sub-score-row">
+            <span class="sub-score-name">Grammar</span>
+            <div class="sub-score-bar-wrap"><div id="grammarBar" class="sub-score-bar"></div></div>
+            <span id="grammarValue" class="sub-score-value"></span>
+          </div>
+          <div class="sub-score-row">
+            <span class="sub-score-name">Vocabulary</span>
+            <div class="sub-score-bar-wrap"><div id="vocabBar" class="sub-score-bar"></div></div>
+            <span id="vocabValue" class="sub-score-value"></span>
+          </div>
+          <div class="sub-score-row">
+            <span class="sub-score-name">Coherence</span>
+            <div class="sub-score-bar-wrap"><div id="coherenceBar" class="sub-score-bar"></div></div>
+            <span id="coherenceValue" class="sub-score-value"></span>
+          </div>
+          <div class="sub-score-row">
+            <span class="sub-score-name">Expression</span>
+            <div class="sub-score-bar-wrap"><div id="expressionBar" class="sub-score-bar"></div></div>
+            <span id="expressionValue" class="sub-score-value"></span>
+          </div>
+        </div>
+        <div class="word-count-badge">
+          📝 <span id="feedbackWordCount">0</span> words written
+        </div>
+      </div>
+
+      <!-- Fixes -->
+      <div id="fix1Card" class="card fix-card">
+        <span class="card-badge badge-fix">Gentle Fix</span>
+        <h3 id="fix1Title"></h3>
+        <p class="fix-original">You wrote: <em id="fix1Original"></em></p>
+        <div class="fix-content">
+          <p class="fix-label">Try this:</p>
+          <p id="fix1Fix" class="fix-text"></p>
+        </div>
+        <p id="fix1Note" class="tutor-note"></p>
+      </div>
+
+      <div id="fix2Card" class="card fix-card">
+        <span class="card-badge badge-fix">Gentle Fix</span>
+        <h3 id="fix2Title"></h3>
+        <p class="fix-original">You wrote: <em id="fix2Original"></em></p>
+        <div class="fix-content">
+          <p class="fix-label">Try this:</p>
+          <p id="fix2Fix" class="fix-text"></p>
+        </div>
+        <p id="fix2Note" class="tutor-note"></p>
+      </div>
+
+      <!-- Native Upgrade -->
+      <div class="card upgrade-card">
+        <span class="card-badge badge-upgrade">Native Upgrade 🚀</span>
+        <h3 id="upgradeTitle"></h3>
+        <p class="fix-original">You wrote: <em id="upgradeOriginal"></em></p>
+        <div class="fix-content">
+          <p class="fix-label">Natives say:</p>
+          <p id="upgradeFix" class="fix-text"></p>
+        </div>
+        <p id="upgradeNote" class="tutor-note"></p>
+      </div>
+
+      <!-- Rewrite Challenge -->
+      <div id="rewriteCard" class="card rewrite-card">
+        <span class="card-badge badge-challenge">✍️ Rewrite Challenge</span>
+        <p class="rewrite-prompt">Can you rewrite this sentence using the feedback above?</p>
+        <div class="rewrite-original">
+          <p id="rewriteOriginal"></p>
+        </div>
+        <textarea id="rewriteInput" class="rewrite-input" placeholder="Try rewriting the sentence here..." rows="3"></textarea>
+        <div id="rewriteHint" class="rewrite-hint" hidden>
+          <p><strong>Hint:</strong> <span id="rewriteHintText"></span></p>
+          <p class="rewrite-answer">Suggested: <em id="rewriteAnswer"></em></p>
+        </div>
+        <div class="rewrite-actions">
+          <button id="showHintBtn" class="btn btn-small btn-secondary">Show Hint</button>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="feedback-actions">
+        <button id="shareBtn" class="btn btn-primary">🌟 Share Progress</button>
+        <button id="writeAgainBtn" class="btn btn-secondary">✏️ Write Again</button>
+      </div>
+    </section>
+
+    <!-- Share Modal -->
+    <div id="shareModal" class="modal-overlay" hidden>
+      <div class="modal">
+        <button id="modalCloseBtn" class="modal-close" aria-label="Close">&times;</button>
+        <h2>Share Your Progress!</h2>
+        <p class="modal-subtitle">Post this in the community!</p>
+        <div id="sharePreviewWrap" class="share-preview-wrap">
+          <p id="sharePreviewSpinner" class="share-preview-spinner">⏳ Generating preview...</p>
+          <img id="sharePreviewImg" class="share-preview-img" alt="Progress card" hidden />
+        </div>
+        <div class="share-img-actions">
+          <button id="copyImgBtn" class="btn btn-modal-action">📋 Copy</button>
+          <button id="downloadImgBtn" class="btn btn-modal-action btn-modal-primary">⬇️ Download</button>
+        </div>
+        <button id="copyJournalBtn" class="btn btn-modal-action">📝 Copy Journal Text</button>
+        <p id="shareConfirm" class="copy-confirm" hidden></p>
+      </div>
+    </div>
+
+    <!-- Share Card (off-screen, captured by html2canvas) -->
+    <div id="shareCard" class="share-card" aria-hidden="true">
+      <div class="sc-header">
+        <span class="sc-logo">✏️ DailyPen</span>
+        <span class="sc-tagline">Daily English Journal</span>
+      </div>
+      <div class="sc-score-wrap">
+        <div id="scScoreCircle" class="sc-score-circle">
+          <span id="scScoreNumber" class="sc-score-number"></span>
+          <span class="sc-score-denom">/100</span>
+        </div>
+        <p id="scScoreLabel" class="sc-score-label"></p>
+      </div>
+      <div class="sc-sub-scores">
+        <div class="sc-sub-row">
+          <span class="sc-sub-name">Grammar</span>
+          <div class="sc-sub-bar-wrap"><div id="scGrammarBar" class="sc-sub-bar"></div></div>
+          <span id="scGrammarValue" class="sc-sub-value"></span>
+        </div>
+        <div class="sc-sub-row">
+          <span class="sc-sub-name">Vocabulary</span>
+          <div class="sc-sub-bar-wrap"><div id="scVocabBar" class="sc-sub-bar"></div></div>
+          <span id="scVocabValue" class="sc-sub-value"></span>
+        </div>
+        <div class="sc-sub-row">
+          <span class="sc-sub-name">Coherence</span>
+          <div class="sc-sub-bar-wrap"><div id="scCoherenceBar" class="sc-sub-bar"></div></div>
+          <span id="scCoherenceValue" class="sc-sub-value"></span>
+        </div>
+        <div class="sc-sub-row">
+          <span class="sc-sub-name">Expression</span>
+          <div class="sc-sub-bar-wrap"><div id="scExpressionBar" class="sc-sub-bar"></div></div>
+          <span id="scExpressionValue" class="sc-sub-value"></span>
+        </div>
+      </div>
+      <div class="sc-meta">
+        <span id="scWordCount" class="sc-word-count">📝 0 words</span>
+        <span id="scPromptTopic" class="sc-prompt-topic"></span>
+      </div>
+      <div class="sc-footer">
+        Practice English with DailyPen
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <section id="errorSection" class="step-section" hidden>
+      <p id="errorText" class="error-text"></p>
+      <button id="errorResetBtn" class="btn btn-secondary">Try Again</button>
+    </section>
+
+  </div>
+
+  <script type="module" src="/main.js"></script>
+</body>
+</html>

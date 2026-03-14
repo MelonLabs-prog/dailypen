@@ -1,0 +1,22 @@
+{
+  "name": "dailypen",
+  "private": true,
+  "version": "1.0.0",
+  "description": "AI-powered English journal writing tool for learners",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@google/genai": "^1.0.0",
+    "feedback-tool": "file:../feedback-tool",
+    "html2canvas": "^1.4.1",
+    "rss-parser": "^3.13.0",
+    "xml2js": "^0.6.2"
+  },
+  "devDependencies": {
+    "vite": "^6.2.0"
+  }
+}
