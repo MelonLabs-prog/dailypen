@@ -70,9 +70,7 @@ async function loadPrompts(refresh = false) {
       reflect: [
         { prompt: 'What is something new you learned this week? How did it make you feel?', vocab: ['fascinating', 'discover', 'perspective', 'realize'] },
         { prompt: 'Describe a person who has influenced your life. What did they teach you?', vocab: ['inspire', 'grateful', 'wisdom', 'role model'] },
-        { prompt: 'What is one thing you would tell your younger self? Write about the advice and why it matters.', vocab: ['regret', 'hindsight', 'growth', 'appreciate'] },
         { prompt: 'Think about a time you stepped out of your comfort zone. What happened and how did you feel?', vocab: ['courage', 'nervous', 'overcome', 'rewarding'] },
-        { prompt: 'What does a perfect weekend look like for you? Describe it in detail.', vocab: ['unwind', 'leisurely', 'recharge', 'indulge'] },
       ],
       world: [
         { prompt: 'Technology is changing how people communicate around the world. Do you think this is mostly positive or negative? Why?', vocab: ['connection', 'interact', 'social media', 'meaningful'], source: 'General' },
@@ -82,8 +80,6 @@ async function loadPrompts(refresh = false) {
       random: [
         { prompt: 'If you could wake up tomorrow with one new skill, what would it be and why?', vocab: ['master', 'ambitious', 'transform', 'passion'] },
         { prompt: 'You find a mysterious door in your house that you have never noticed before. What happens when you open it?', vocab: ['curiosity', 'bizarre', 'stumble upon', 'astonishing'] },
-        { prompt: 'If you could have dinner with any person, living or dead, who would it be and what would you talk about?', vocab: ['admire', 'insightful', 'fascinating', 'memorable'] },
-        { prompt: 'Describe your favourite meal as if you are a food critic writing for a magazine.', vocab: ['savoury', 'delectable', 'texture', 'aroma', 'culinary'] },
       ],
     };
   } finally {

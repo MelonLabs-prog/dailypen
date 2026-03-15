@@ -5,6 +5,43 @@ import { getLatestArticles } from '../lib/sources/guardian.js';
 // Simple in-memory cache (one day)
 let cache = { date: null, data: null };
 
+// Rotating theme pools — cycled by day-of-year to ensure daily variety
+const reflectThemes = [
+  ['childhood memories', 'a skill you are proud of', 'your relationship with food'],
+  ['a place that feels like home', 'something that scares you', 'a habit you want to change'],
+  ['your happiest moment this year', 'a friendship that matters', 'what success means to you'],
+  ['a mistake that taught you something', 'your morning routine', 'a song that changed your mood'],
+  ['a stranger who was kind to you', 'what makes you feel confident', 'your favourite season and why'],
+  ['a book or movie that changed you', 'something you forgave', 'a goal for next month'],
+  ['your relationship with technology', 'a tradition you love', 'what you do when you feel lonely'],
+  ['a compliment you will never forget', 'your biggest fear about the future', 'a small thing that makes your day'],
+  ['a difficult decision you made', 'what home sounds like', 'a language barrier experience'],
+  ['something you lost and how you felt', 'an act of kindness you did', 'what motivates you to learn English'],
+];
+
+const randomThemes = [
+  ['time travel to the past', 'a superpower you would choose'],
+  ['a letter to your future self', 'life on another planet'],
+  ['a day without technology', 'your dream job as a child'],
+  ['if animals could talk', 'designing your perfect city'],
+  ['a mystery you want to solve', 'the last person on Earth'],
+  ['inventing a new holiday', 'switching lives with someone for a day'],
+  ['a world where everyone is honest', 'your life as a movie plot'],
+  ['a message in a bottle', 'waking up in a different country'],
+  ['a conversation with your pet', 'the weirdest dream you ever had'],
+  ['living in a different century', 'a talent show with a hidden skill'],
+];
+
+function getTodayThemes(date) {
+  const dayOfYear = Math.floor((new Date(date) - new Date(date.substring(0, 4) + '-01-01')) / 86400000);
+  const reflectIdx = dayOfYear % reflectThemes.length;
+  const randomIdx = dayOfYear % randomThemes.length;
+  return {
+    reflect: reflectThemes[reflectIdx],
+    random: randomThemes[randomIdx],
+  };
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -51,11 +88,17 @@ export default async function handler(req, res) {
 
     const ai = new GoogleGenAI({ apiKey });
 
+    const themes = getTodayThemes(today);
+
     const systemPrompt = `You are a creative writing prompt generator for English learners (B1-B2 level).
 Today's date is ${today}.
 
 ${articleContext ? `Here are today's trending articles:\n${articleContext}\n` : ''}
 Generate journal writing prompts in these categories. For EACH prompt, include 3-5 suggested vocabulary words/phrases the writer could use.
+
+Today's assigned themes (you MUST base your prompts on these specific themes):
+- Reflect themes: ${themes.reflect.join(', ')}
+- Random themes: ${themes.random.join(', ')}
 
 IMPORTANT: You must respond with valid JSON only, no markdown, no code fences.
 
@@ -87,12 +130,12 @@ IMPORTANT: You must respond with valid JSON only, no markdown, no code fences.
 }
 
 Guidelines:
-- Reflect prompts: warm, personal, encourage self-expression (e.g. "What made you smile today?", "Describe a moment you felt proud of yourself recently")
+- Reflect prompts: warm, personal, encourage self-expression. Each prompt MUST be about one of today's assigned reflect themes.
 - World prompts: MUST include at least 1 "Today in History" prompt about a real event that happened on today's date (${today}). The rest should be based on the trending articles above, simplified to B1-B2 level. Always end with an opinion question.
-- Random prompts: creative, fun, thought-provoking
+- Random prompts: creative, fun, thought-provoking. Each prompt MUST be about one of today's assigned random themes.
 - Vocab words should be B2-C1 level — challenging but useful. Include a mix of adjectives, verbs, and phrases.
-- Generate exactly 5 reflect, 3 world (at least 1 must be "Today in History"), and 4 random prompts.
-- Be creative and varied — avoid generic prompts. Each prompt within a category MUST be distinctly different in topic and angle. Never repeat similar themes (e.g. don't have two prompts about "learning something new").`;
+- Generate exactly 3 reflect (one per theme), 3 world (at least 1 must be "Today in History"), and 2 random (one per theme).
+- Each prompt must be a unique angle on its assigned theme. Be specific and vivid — avoid generic questions.`;
 
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
@@ -121,9 +164,7 @@ Guidelines:
       reflect: [
         { prompt: 'What is something new you learned this week? How did it make you feel?', vocab: ['fascinating', 'discover', 'perspective', 'realize'] },
         { prompt: 'Describe a person who has influenced your life. What did they teach you?', vocab: ['inspire', 'grateful', 'wisdom', 'role model'] },
-        { prompt: 'What is one thing you would tell your younger self? Write about the advice and why it matters.', vocab: ['regret', 'hindsight', 'growth', 'appreciate'] },
         { prompt: 'Think about a time you stepped out of your comfort zone. What happened and how did you feel?', vocab: ['courage', 'nervous', 'overcome', 'rewarding'] },
-        { prompt: 'What does a perfect weekend look like for you? Describe it in detail.', vocab: ['unwind', 'leisurely', 'recharge', 'indulge'] },
       ],
       world: [
         { prompt: 'Many people around the world are discussing how technology changes the way we communicate. Do you think technology brings people closer together or pushes them apart? Why?', vocab: ['connection', 'interact', 'social media', 'meaningful'], source: 'General' },
@@ -133,8 +174,6 @@ Guidelines:
       random: [
         { prompt: 'If you could wake up tomorrow with one new skill or ability, what would it be and why?', vocab: ['master', 'ambitious', 'transform', 'passion'] },
         { prompt: 'You find a mysterious door in your house that you have never noticed before. What happens when you open it?', vocab: ['curiosity', 'bizarre', 'stumble upon', 'astonishing'] },
-        { prompt: 'If you could have dinner with any person, living or dead, who would it be and what would you talk about?', vocab: ['admire', 'insightful', 'fascinating', 'memorable'] },
-        { prompt: 'Describe your favourite meal as if you are a food critic writing for a magazine.', vocab: ['savoury', 'delectable', 'texture', 'aroma', 'culinary'] },
       ],
     };
     return res.status(200).json(fallback);
