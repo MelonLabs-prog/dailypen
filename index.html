@@ -44,6 +44,24 @@
 
       <div id="promptList" class="prompt-list" hidden></div>
 
+      <div class="prompt-lang-row">
+        <label for="promptLang" class="prompt-lang-label">🌐 Translate to:</label>
+        <select id="promptLang" class="prompt-lang-select">
+          <option value="Chinese">中文 Chinese</option>
+          <option value="Japanese">日本語 Japanese</option>
+          <option value="Korean">한국어 Korean</option>
+          <option value="Spanish">Español Spanish</option>
+          <option value="Portuguese">Português Portuguese</option>
+          <option value="French">Français French</option>
+          <option value="German">Deutsch German</option>
+          <option value="Arabic">العربية Arabic</option>
+          <option value="Thai">ไทย Thai</option>
+          <option value="Vietnamese">Tiếng Việt Vietnamese</option>
+          <option value="Indonesian">Bahasa Indonesia</option>
+          <option value="Russian">Русский Russian</option>
+        </select>
+      </div>
+
       <div class="prompt-actions">
         <button id="refreshPromptsBtn" class="btn btn-small btn-secondary">🔄 More prompts</button>
         <button id="freeWriteBtn" class="btn btn-secondary">Or just free-write →</button>
@@ -102,7 +120,7 @@
               <option value="Russian">Русский Russian</option>
             </select>
             <div class="lifeline-input-row">
-              <input id="nativeInput" type="text" class="native-input" placeholder="Type what you want to say..." maxlength="500" />
+              <input id="nativeInput" type="text" class="native-input" placeholder="Type what you want to say in your language" maxlength="500" />
               <button id="lifelineHelpBtn" class="btn btn-small btn-primary">Help me</button>
             </div>
           </div>
@@ -220,7 +238,7 @@
       <!-- Rewrite Challenge -->
       <div id="rewriteCard" class="card rewrite-card">
         <span class="card-badge badge-challenge">✍️ Rewrite Challenge</span>
-        <p class="rewrite-prompt">Can you rewrite this sentence using the feedback above?</p>
+        <p class="rewrite-prompt">Can you fix this sentence?</p>
         <div class="rewrite-original">
           <p id="rewriteOriginal"></p>
         </div>
@@ -237,7 +255,8 @@
       </div>
 
       <!-- Actions -->
-      <div class="feedback-actions">
+      <div id="feedbackActions" class="feedback-actions">
+        <button id="tryRewriteBtn" class="btn btn-accent">✍️ Try Rewrite Challenge</button>
         <button id="shareBtn" class="btn btn-primary">🌟 Share Progress</button>
         <button id="writeAgainBtn" class="btn btn-secondary">✏️ Write Again</button>
       </div>

@@ -128,15 +128,15 @@ function renderPrompts() {
       btn.disabled = true;
       btn.textContent = '⏳';
       try {
-        const nativeLang = document.getElementById('nativeLang')?.value || 'Chinese';
-        const res = await fetch('/api/assist', {
+        const targetLang = document.getElementById('promptLang')?.value || 'Chinese';
+        const res = await fetch('/api/translate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ nativeText: item.prompt, nativeLang: `translate to ${nativeLang}` }),
+          body: JSON.stringify({ text: item.prompt, targetLang }),
         });
         if (!res.ok) throw new Error('Failed');
         const data = await res.json();
-        translationEl.innerHTML = `<p class="prompt-translation-text">${data.english}</p>`;
+        translationEl.innerHTML = `<p class="prompt-translation-text">${data.translation}</p>`;
         translationEl.hidden = false;
       } catch {
         translationEl.innerHTML = '<p class="prompt-translation-text">Could not translate.</p>';
@@ -149,14 +149,26 @@ function renderPrompts() {
   });
 }
 
-// Refresh prompts
+// Refresh prompts (category-specific: only replaces current category)
 document.getElementById('refreshPromptsBtn').addEventListener('click', async () => {
   const btn = document.getElementById('refreshPromptsBtn');
   btn.disabled = true;
   btn.textContent = '⏳ Loading...';
-  await loadPrompts(true);
-  btn.disabled = false;
-  btn.textContent = '🔄 More prompts';
+  try {
+    const res = await fetch('/api/prompt?refresh=1');
+    if (!res.ok) throw new Error('Failed');
+    const newPrompts = await res.json();
+    // Only replace the current category, keep others
+    if (newPrompts[currentCategory]) {
+      promptsData[currentCategory] = newPrompts[currentCategory];
+    }
+    renderPrompts();
+  } catch {
+    // Silently fail, keep existing prompts
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🔄 More prompts';
+  }
 });
 
 // Free write
@@ -442,8 +454,39 @@ function renderFeedback(data) {
     document.getElementById('rewriteCard').hidden = true;
   }
 
+  // Hide rewrite card initially — user must click "Try Rewrite Challenge"
+  document.getElementById('rewriteCard').hidden = true;
+
   showStep(feedbackSection);
 }
+
+// Rewrite challenge flow: hide feedback, show only rewrite
+const feedbackCards = () => feedbackSection.querySelectorAll('.welldone-card, .score-card, .fix-card, .upgrade-card');
+
+document.getElementById('tryRewriteBtn').addEventListener('click', () => {
+  feedbackCards().forEach(c => c.hidden = true);
+  document.getElementById('rewriteCard').hidden = false;
+  document.getElementById('feedbackActions').hidden = true;
+  // Add a back button if not already there
+  let backBtn = document.getElementById('backToFeedbackBtn');
+  if (!backBtn) {
+    backBtn = document.createElement('button');
+    backBtn.id = 'backToFeedbackBtn';
+    backBtn.className = 'btn btn-secondary';
+    backBtn.textContent = '← Back to Feedback';
+    backBtn.style.marginTop = '12px';
+    document.getElementById('rewriteCard').after(backBtn);
+    backBtn.addEventListener('click', () => {
+      feedbackCards().forEach(c => c.hidden = false);
+      document.getElementById('rewriteCard').hidden = true;
+      document.getElementById('feedbackActions').hidden = false;
+      backBtn.hidden = true;
+      window.scrollTo(0, 0);
+    });
+  }
+  backBtn.hidden = false;
+  window.scrollTo(0, 0);
+});
 
 // Rewrite check
 document.getElementById('checkRewriteBtn').addEventListener('click', async () => {
