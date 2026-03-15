@@ -91,8 +91,8 @@ Guidelines:
 - World prompts: MUST include at least 1 "Today in History" prompt about a real event that happened on today's date (${today}). The rest should be based on the trending articles above, simplified to B1-B2 level. Always end with an opinion question.
 - Random prompts: creative, fun, thought-provoking
 - Vocab words should be B2-C1 level — challenging but useful. Include a mix of adjectives, verbs, and phrases.
-- Generate exactly 3 reflect, 3 world (at least 1 must be "Today in History"), and 2 random prompts.
-- Be creative and varied — avoid generic prompts.`;
+- Generate exactly 5 reflect, 3 world (at least 1 must be "Today in History"), and 4 random prompts.
+- Be creative and varied — avoid generic prompts. Each prompt within a category MUST be distinctly different in topic and angle. Never repeat similar themes (e.g. don't have two prompts about "learning something new").`;
 
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
@@ -121,13 +121,20 @@ Guidelines:
       reflect: [
         { prompt: 'What is something new you learned this week? How did it make you feel?', vocab: ['fascinating', 'discover', 'perspective', 'realize'] },
         { prompt: 'Describe a person who has influenced your life. What did they teach you?', vocab: ['inspire', 'grateful', 'wisdom', 'role model'] },
+        { prompt: 'What is one thing you would tell your younger self? Write about the advice and why it matters.', vocab: ['regret', 'hindsight', 'growth', 'appreciate'] },
+        { prompt: 'Think about a time you stepped out of your comfort zone. What happened and how did you feel?', vocab: ['courage', 'nervous', 'overcome', 'rewarding'] },
+        { prompt: 'What does a perfect weekend look like for you? Describe it in detail.', vocab: ['unwind', 'leisurely', 'recharge', 'indulge'] },
       ],
       world: [
         { prompt: 'Many people around the world are discussing how technology changes the way we communicate. Do you think technology brings people closer together or pushes them apart? Why?', vocab: ['connection', 'interact', 'social media', 'meaningful'], source: 'General' },
         { prompt: 'Today, think about a news story you heard recently. What happened and what is your opinion about it?', vocab: ['headline', 'significant', 'impact', 'debate'], source: 'General' },
+        { prompt: 'More people are working from home than ever before. Do you think this trend will continue? What are the pros and cons?', vocab: ['remote', 'flexibility', 'isolation', 'productivity'], source: 'General' },
       ],
       random: [
         { prompt: 'If you could wake up tomorrow with one new skill or ability, what would it be and why?', vocab: ['master', 'ambitious', 'transform', 'passion'] },
+        { prompt: 'You find a mysterious door in your house that you have never noticed before. What happens when you open it?', vocab: ['curiosity', 'bizarre', 'stumble upon', 'astonishing'] },
+        { prompt: 'If you could have dinner with any person, living or dead, who would it be and what would you talk about?', vocab: ['admire', 'insightful', 'fascinating', 'memorable'] },
+        { prompt: 'Describe your favourite meal as if you are a food critic writing for a magazine.', vocab: ['savoury', 'delectable', 'texture', 'aroma', 'culinary'] },
       ],
     };
     return res.status(200).json(fallback);

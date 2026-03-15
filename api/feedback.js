@@ -86,7 +86,7 @@ IMPORTANT: Respond with valid JSON only, no markdown, no code fences.
     "native": "How a native speaker would write the same journal entry with the same ideas and personality."
   },
   "wordCount": 0
-}
+}`;
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -126,7 +126,14 @@ export default async function handler(req, res) {
     });
 
     let responseText = response.text ?? '';
-    responseText = responseText.replace(/^```json?\s*/i, '').replace(/\s*```$/i, '').trim();
+    // Strip markdown fences and find the JSON object
+    responseText = responseText.replace(/```json?\s*/gi, '').replace(/```/g, '').trim();
+    // Extract the outermost JSON object
+    const firstBrace = responseText.indexOf('{');
+    const lastBrace = responseText.lastIndexOf('}');
+    if (firstBrace !== -1 && lastBrace > firstBrace) {
+      responseText = responseText.substring(firstBrace, lastBrace + 1);
+    }
 
     const feedback = JSON.parse(responseText);
 
