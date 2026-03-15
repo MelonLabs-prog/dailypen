@@ -48,8 +48,8 @@ promptTabs.forEach(tab => {
   });
 });
 
-async function loadPrompts() {
-  if (promptsData) {
+async function loadPrompts(refresh = false) {
+  if (!refresh && promptsData) {
     promptLoading.hidden = true;
     promptList.hidden = false;
     renderPrompts();
@@ -60,7 +60,8 @@ async function loadPrompts() {
   promptList.hidden = true;
 
   try {
-    const res = await fetch('/api/prompt');
+    const url = refresh ? '/api/prompt?refresh=1' : '/api/prompt';
+    const res = await fetch(url);
     if (!res.ok) throw new Error('Failed to load prompts');
     promptsData = await res.json();
   } catch {
@@ -95,12 +96,15 @@ function renderPrompts() {
       <div class="prompt-vocab-preview">
         ${item.vocab.map(v => `<span class="vocab-chip">${v}</span>`).join('')}
       </div>
+      <button class="prompt-translate-btn" data-index="${i}" title="Translate this prompt">🌐 Translate</button>
+      <div class="prompt-translation" data-translate-index="${i}" hidden></div>
     </div>
   `).join('');
 
-  // Attach click handlers
+  // Attach click handlers for selecting prompts (ignore clicks on translate btn)
   promptList.querySelectorAll('.prompt-card').forEach(card => {
-    card.addEventListener('click', () => {
+    card.addEventListener('click', (e) => {
+      if (e.target.closest('.prompt-translate-btn')) return;
       const idx = parseInt(card.dataset.index);
       const item = items[idx];
       selectedPrompt = item.prompt;
@@ -108,7 +112,48 @@ function renderPrompts() {
       goToWrite();
     });
   });
+
+  // Attach translate handlers
+  promptList.querySelectorAll('.prompt-translate-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const idx = btn.dataset.index;
+      const item = items[parseInt(idx)];
+      const translationEl = promptList.querySelector(`[data-translate-index="${idx}"]`);
+      if (!translationEl.hidden) { translationEl.hidden = true; return; }
+      btn.disabled = true;
+      btn.textContent = '⏳';
+      try {
+        const nativeLang = document.getElementById('nativeLang')?.value || 'Chinese';
+        const res = await fetch('/api/assist', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nativeText: item.prompt, nativeLang: `translate to ${nativeLang}` }),
+        });
+        if (!res.ok) throw new Error('Failed');
+        const data = await res.json();
+        translationEl.innerHTML = `<p class="prompt-translation-text">${data.english}</p>`;
+        translationEl.hidden = false;
+      } catch {
+        translationEl.innerHTML = '<p class="prompt-translation-text">Could not translate.</p>';
+        translationEl.hidden = false;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '🌐 Translate';
+      }
+    });
+  });
 }
+
+// Refresh prompts
+document.getElementById('refreshPromptsBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('refreshPromptsBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Loading...';
+  await loadPrompts(true);
+  btn.disabled = false;
+  btn.textContent = '🔄 More prompts';
+});
 
 // Free write
 document.getElementById('freeWriteBtn').addEventListener('click', () => {
@@ -344,6 +389,48 @@ function renderFeedback(data) {
   showStep(feedbackSection);
 }
 
+// Rewrite check
+document.getElementById('checkRewriteBtn').addEventListener('click', async () => {
+  const rewriteInput = document.getElementById('rewriteInput');
+  const text = rewriteInput.value.trim();
+  if (!text) return;
+
+  const btn = document.getElementById('checkRewriteBtn');
+  const feedbackEl = document.getElementById('rewriteFeedback');
+  btn.disabled = true;
+  btn.textContent = '⏳ Checking...';
+
+  try {
+    const rc = lastFeedbackData?.rewriteChallenge;
+    const res = await fetch('/api/rewrite-check', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        original: rc?.original || '',
+        improved: rc?.improved || '',
+        rewrite: text,
+      }),
+    });
+    if (!res.ok) throw new Error('Failed');
+    const data = await res.json();
+
+    const emoji = data.rating === 'great' ? '🌟' : data.rating === 'good' ? '👍' : '💪';
+    feedbackEl.innerHTML = `
+      <p class="rewrite-fb-rating">${emoji} ${data.feedback}</p>
+      ${data.tip ? `<p class="rewrite-fb-tip">💡 ${data.tip}</p>` : ''}
+    `;
+    feedbackEl.className = `rewrite-feedback rewrite-fb-${data.rating}`;
+    feedbackEl.hidden = false;
+  } catch {
+    feedbackEl.innerHTML = '<p>Could not check rewrite. Try again.</p>';
+    feedbackEl.className = 'rewrite-feedback';
+    feedbackEl.hidden = false;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '✅ Check my rewrite';
+  }
+});
+
 // Rewrite hint
 document.getElementById('showHintBtn').addEventListener('click', () => {
   document.getElementById('rewriteHint').hidden = false;
@@ -380,24 +467,49 @@ const shareModal = document.getElementById('shareModal');
 const sharePreviewImg = document.getElementById('sharePreviewImg');
 const sharePreviewSpinner = document.getElementById('sharePreviewSpinner');
 const shareConfirm = document.getElementById('shareConfirm');
+let shareMode = 'score'; // 'score' | 'feedback'
 
-document.getElementById('shareBtn').addEventListener('click', async () => {
-  if (!lastFeedbackData) return;
-  shareConfirm.hidden = true;
+async function generateCurrentSharePreview() {
   sharePreviewImg.hidden = true;
   sharePreviewSpinner.hidden = false;
   sharePreviewSpinner.textContent = '⏳ Generating preview...';
-  shareModal.hidden = false;
-
   try {
     populateShareCard(lastFeedbackData);
-    lastCanvas = await generateShareImage();
+    if (shareMode === 'feedback') {
+      populateShareCardFeedback(lastFeedbackData);
+    }
+    const cardId = shareMode === 'feedback' ? 'shareCardFeedback' : 'shareCard';
+    lastCanvas = await generateShareImage(cardId);
     sharePreviewImg.src = lastCanvas.toDataURL('image/png');
     sharePreviewImg.hidden = false;
     sharePreviewSpinner.hidden = true;
   } catch {
     sharePreviewSpinner.textContent = '❌ Could not generate preview.';
   }
+}
+
+document.getElementById('shareScoreOnly').addEventListener('click', () => {
+  shareMode = 'score';
+  document.getElementById('shareScoreOnly').classList.add('active');
+  document.getElementById('shareWithFeedback').classList.remove('active');
+  generateCurrentSharePreview();
+});
+
+document.getElementById('shareWithFeedback').addEventListener('click', () => {
+  shareMode = 'feedback';
+  document.getElementById('shareWithFeedback').classList.add('active');
+  document.getElementById('shareScoreOnly').classList.remove('active');
+  generateCurrentSharePreview();
+});
+
+document.getElementById('shareBtn').addEventListener('click', async () => {
+  if (!lastFeedbackData) return;
+  shareConfirm.hidden = true;
+  shareMode = 'score';
+  document.getElementById('shareScoreOnly').classList.add('active');
+  document.getElementById('shareWithFeedback').classList.remove('active');
+  shareModal.hidden = false;
+  await generateCurrentSharePreview();
 });
 
 document.getElementById('modalCloseBtn').addEventListener('click', () => { shareModal.hidden = true; });
@@ -480,8 +592,45 @@ function populateShareCard(data) {
     : 'Free writing';
 }
 
-async function generateShareImage() {
-  const shareCard = document.getElementById('shareCard');
+function populateShareCardFeedback(data) {
+  const scores = data.scores || {};
+  const overall = typeof scores.overall === 'number' ? scores.overall : 0;
+
+  document.getElementById('scfScoreNumber').textContent = overall;
+  document.getElementById('scfScoreLabel').textContent = data.scoreLabel || '';
+  document.getElementById('scfScoreCircle').className = 'sc-score-circle ' + getScoreTier(overall);
+
+  // Fixes
+  const fix1 = data.fixes?.[0];
+  if (fix1) {
+    document.getElementById('scfFix1Title').textContent = fix1.title;
+    document.getElementById('scfFix1Before').textContent = fix1.original || '';
+    document.getElementById('scfFix1After').textContent = fix1.fix;
+  }
+  const fix2 = data.fixes?.[1];
+  if (fix2) {
+    document.getElementById('scfFix2Title').textContent = fix2.title;
+    document.getElementById('scfFix2Before').textContent = fix2.original || '';
+    document.getElementById('scfFix2After').textContent = fix2.fix;
+    document.getElementById('scfFix2').style.display = '';
+  } else {
+    document.getElementById('scfFix2').style.display = 'none';
+  }
+  const upgrade = data.upgrade;
+  if (upgrade) {
+    document.getElementById('scfUpgradeTitle').textContent = upgrade.title;
+    document.getElementById('scfUpgradeBefore').textContent = upgrade.original || '';
+    document.getElementById('scfUpgradeAfter').textContent = upgrade.fix;
+  }
+
+  document.getElementById('scfWordCount').textContent = `📝 ${data.wordCount || 0} words`;
+  document.getElementById('scfPromptTopic').textContent = selectedPrompt
+    ? selectedPrompt.substring(0, 60) + (selectedPrompt.length > 60 ? '...' : '')
+    : 'Free writing';
+}
+
+async function generateShareImage(cardId = 'shareCard') {
+  const shareCard = document.getElementById(cardId);
   shareCard.style.position = 'fixed';
   shareCard.style.left = '-9999px';
   shareCard.style.top = '0';

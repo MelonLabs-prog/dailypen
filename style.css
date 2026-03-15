@@ -261,8 +261,45 @@ body {
 }
 
 .prompt-actions {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
   margin-top: 8px;
+}
+
+/* Translate button on prompt cards */
+.prompt-translate-btn {
+  display: inline-block;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-light);
+  cursor: pointer;
+  margin-top: 8px;
+  transition: all 0.2s;
+}
+
+.prompt-translate-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.prompt-translation {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: #fffbeb;
+  border-radius: 8px;
+  border: 1px solid #fef3c7;
+}
+
+.prompt-translation-text {
+  font-size: 0.85rem;
+  color: var(--text);
+  line-height: 1.5;
 }
 
 /* === Writing Section === */
@@ -658,26 +695,42 @@ body {
   margin-bottom: 8px;
 }
 
-.fix-original {
-  font-size: 0.85rem;
-  color: var(--text-light);
-  margin-bottom: 8px;
-}
-
-.fix-original em {
-  text-decoration: line-through;
-  color: var(--red);
-}
-
-.fix-content {
-  background: var(--bg);
+/* === Fix Diff Layout === */
+.fix-diff {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  margin-bottom: 10px;
   border-radius: 8px;
-  padding: 10px 14px;
-  margin-bottom: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border);
 }
 
-.fix-label {
-  font-size: 0.75rem;
+.fix-diff-side {
+  flex: 1;
+  padding: 10px 12px;
+}
+
+.fix-diff-before {
+  background: #fef2f2;
+}
+
+.fix-diff-after {
+  background: #f0fdf4;
+}
+
+.fix-diff-arrow {
+  display: flex;
+  align-items: center;
+  padding: 0 6px;
+  background: var(--bg);
+  font-size: 1rem;
+  color: var(--text-light);
+  flex-shrink: 0;
+}
+
+.fix-diff-label {
+  font-size: 0.7rem;
   font-weight: 600;
   color: var(--text-light);
   text-transform: uppercase;
@@ -685,11 +738,19 @@ body {
   margin-bottom: 4px;
 }
 
-.fix-text {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--green);
+.fix-diff-text {
+  font-size: 0.9rem;
   line-height: 1.5;
+  color: var(--text);
+}
+
+.fix-diff-highlight {
+  color: var(--green);
+  font-weight: 600;
+}
+
+.fix-diff-before .fix-diff-text {
+  color: var(--red);
 }
 
 .tutor-note {
@@ -753,8 +814,44 @@ body {
   font-weight: 600;
 }
 
+/* Rewrite feedback */
+.rewrite-feedback {
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.rewrite-fb-great {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+}
+
+.rewrite-fb-good {
+  background: #fefce8;
+  border: 1px solid #fef08a;
+}
+
+.rewrite-fb-try_again {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+}
+
+.rewrite-fb-rating {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.rewrite-fb-tip {
+  color: var(--text-light);
+  font-style: italic;
+}
+
 .rewrite-actions {
-  text-align: right;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
 }
 
 /* === Feedback Actions === */
@@ -1005,6 +1102,91 @@ body {
   color: var(--text-light);
   padding-top: 12px;
   border-top: 1px solid var(--border);
+}
+
+/* === Share Type Toggle === */
+.share-type-toggle {
+  display: flex;
+  background: var(--border);
+  border-radius: 999px;
+  padding: 3px;
+  margin-bottom: 14px;
+  gap: 3px;
+}
+
+.share-type-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-light);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.share-type-btn.active {
+  background: var(--card-bg);
+  color: var(--primary);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* === Share Card Feedback Variant === */
+.sc-feedback-items {
+  margin-bottom: 14px;
+}
+
+.sc-feedback-item {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.sc-feedback-item:last-child {
+  border-bottom: none;
+}
+
+.sc-fb-badge {
+  display: inline-block;
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.sc-fb-fix {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.sc-fb-upgrade {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.sc-fb-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.sc-fb-diff {
+  font-size: 0.7rem;
+  line-height: 1.4;
+}
+
+.sc-fb-before {
+  color: var(--red);
+}
+
+.sc-fb-after {
+  color: var(--green);
+  font-weight: 600;
 }
 
 /* === Pulse animation === */

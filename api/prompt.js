@@ -16,9 +16,10 @@ export default async function handler(req, res) {
   }
 
   const today = new Date().toISOString().split('T')[0];
+  const refresh = req.query?.refresh === '1';
 
-  // Return cached if same day
-  if (cache.date === today && cache.data) {
+  // Return cached if same day and not a refresh request
+  if (!refresh && cache.date === today && cache.data) {
     return res.status(200).json(cache.data);
   }
 
@@ -63,27 +64,23 @@ IMPORTANT: You must respond with valid JSON only, no markdown, no code fences.
     {
       "prompt": "A self-discovery question about feelings, experiences, or personal growth",
       "vocab": ["word1", "phrase2", "word3"]
-    },
-    {
-      "prompt": "Another reflective question",
-      "vocab": ["word1", "phrase2", "word3"]
     }
   ],
   "world": [
     {
-      "prompt": "A simplified summary of a trending topic or today-in-history fact, ending with a question like 'What do you think about this?'",
-      "vocab": ["word1", "phrase2", "word3"],
-      "source": "Source name or 'Today in History'"
-    },
-    {
-      "prompt": "Another world prompt",
+      "prompt": "A simplified trending topic, ending with a question",
       "vocab": ["word1", "phrase2", "word3"],
       "source": "Source name"
+    },
+    {
+      "prompt": "On this day in [year], [historical event simplified to B1-B2]. What do you think about this?",
+      "vocab": ["word1", "phrase2", "word3"],
+      "source": "Today in History"
     }
   ],
   "random": [
     {
-      "prompt": "A fun, creative, or unexpected prompt (e.g. 'If you could have dinner with anyone...')",
+      "prompt": "A fun, creative, or unexpected prompt",
       "vocab": ["word1", "phrase2", "word3"]
     }
   ]
@@ -91,10 +88,11 @@ IMPORTANT: You must respond with valid JSON only, no markdown, no code fences.
 
 Guidelines:
 - Reflect prompts: warm, personal, encourage self-expression (e.g. "What made you smile today?", "Describe a moment you felt proud of yourself recently")
-- World prompts: based on the trending articles above AND/OR today-in-history facts. Simplify to B1-B2 level. Always end with an opinion question.
-- Random prompt: creative, fun, thought-provoking
+- World prompts: MUST include at least 1 "Today in History" prompt about a real event that happened on today's date (${today}). The rest should be based on the trending articles above, simplified to B1-B2 level. Always end with an opinion question.
+- Random prompts: creative, fun, thought-provoking
 - Vocab words should be B2-C1 level — challenging but useful. Include a mix of adjectives, verbs, and phrases.
-- Generate exactly 2 reflect, 2 world, and 1 random prompt.`;
+- Generate exactly 3 reflect, 3 world (at least 1 must be "Today in History"), and 2 random prompts.
+- Be creative and varied — avoid generic prompts.`;
 
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',

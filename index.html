@@ -44,6 +44,7 @@
       <div id="promptList" class="prompt-list" hidden></div>
 
       <div class="prompt-actions">
+        <button id="refreshPromptsBtn" class="btn btn-small btn-secondary">🔄 More prompts</button>
         <button id="freeWriteBtn" class="btn btn-secondary">Or just free-write →</button>
       </div>
     </section>
@@ -169,10 +170,16 @@
       <div id="fix1Card" class="card fix-card">
         <span class="card-badge badge-fix">Gentle Fix</span>
         <h3 id="fix1Title"></h3>
-        <p class="fix-original">You wrote: <em id="fix1Original"></em></p>
-        <div class="fix-content">
-          <p class="fix-label">Try this:</p>
-          <p id="fix1Fix" class="fix-text"></p>
+        <div class="fix-diff">
+          <div class="fix-diff-side fix-diff-before">
+            <p class="fix-diff-label">You wrote</p>
+            <p id="fix1Original" class="fix-diff-text"></p>
+          </div>
+          <div class="fix-diff-arrow">→</div>
+          <div class="fix-diff-side fix-diff-after">
+            <p class="fix-diff-label">Try this</p>
+            <p id="fix1Fix" class="fix-diff-text fix-diff-highlight"></p>
+          </div>
         </div>
         <p id="fix1Note" class="tutor-note"></p>
       </div>
@@ -180,10 +187,16 @@
       <div id="fix2Card" class="card fix-card">
         <span class="card-badge badge-fix">Gentle Fix</span>
         <h3 id="fix2Title"></h3>
-        <p class="fix-original">You wrote: <em id="fix2Original"></em></p>
-        <div class="fix-content">
-          <p class="fix-label">Try this:</p>
-          <p id="fix2Fix" class="fix-text"></p>
+        <div class="fix-diff">
+          <div class="fix-diff-side fix-diff-before">
+            <p class="fix-diff-label">You wrote</p>
+            <p id="fix2Original" class="fix-diff-text"></p>
+          </div>
+          <div class="fix-diff-arrow">→</div>
+          <div class="fix-diff-side fix-diff-after">
+            <p class="fix-diff-label">Try this</p>
+            <p id="fix2Fix" class="fix-diff-text fix-diff-highlight"></p>
+          </div>
         </div>
         <p id="fix2Note" class="tutor-note"></p>
       </div>
@@ -192,10 +205,16 @@
       <div class="card upgrade-card">
         <span class="card-badge badge-upgrade">Native Upgrade 🚀</span>
         <h3 id="upgradeTitle"></h3>
-        <p class="fix-original">You wrote: <em id="upgradeOriginal"></em></p>
-        <div class="fix-content">
-          <p class="fix-label">Natives say:</p>
-          <p id="upgradeFix" class="fix-text"></p>
+        <div class="fix-diff">
+          <div class="fix-diff-side fix-diff-before">
+            <p class="fix-diff-label">You wrote</p>
+            <p id="upgradeOriginal" class="fix-diff-text"></p>
+          </div>
+          <div class="fix-diff-arrow">→</div>
+          <div class="fix-diff-side fix-diff-after">
+            <p class="fix-diff-label">Natives say</p>
+            <p id="upgradeFix" class="fix-diff-text fix-diff-highlight"></p>
+          </div>
         </div>
         <p id="upgradeNote" class="tutor-note"></p>
       </div>
@@ -212,7 +231,9 @@
           <p><strong>Hint:</strong> <span id="rewriteHintText"></span></p>
           <p class="rewrite-answer">Suggested: <em id="rewriteAnswer"></em></p>
         </div>
+        <div id="rewriteFeedback" class="rewrite-feedback" hidden></div>
         <div class="rewrite-actions">
+          <button id="checkRewriteBtn" class="btn btn-small btn-primary">✅ Check my rewrite</button>
           <button id="showHintBtn" class="btn btn-small btn-secondary">Show Hint</button>
         </div>
       </div>
@@ -234,6 +255,10 @@
           <p id="sharePreviewSpinner" class="share-preview-spinner">⏳ Generating preview...</p>
           <img id="sharePreviewImg" class="share-preview-img" alt="Progress card" hidden />
         </div>
+        <div class="share-type-toggle">
+          <button id="shareScoreOnly" class="share-type-btn active">📊 Score Only</button>
+          <button id="shareWithFeedback" class="share-type-btn">📝 Score + Feedback</button>
+        </div>
         <div class="share-img-actions">
           <button id="copyImgBtn" class="btn btn-modal-action">📋 Copy</button>
           <button id="downloadImgBtn" class="btn btn-modal-action btn-modal-primary">⬇️ Download</button>
@@ -243,7 +268,44 @@
       </div>
     </div>
 
-    <!-- Share Card (off-screen, captured by html2canvas) -->
+    <!-- Share Card: Score + Feedback (off-screen) -->
+    <div id="shareCardFeedback" class="share-card" aria-hidden="true">
+      <div class="sc-header">
+        <span class="sc-logo">✏️ DailyPen</span>
+        <span class="sc-tagline">Daily English Journal</span>
+      </div>
+      <div class="sc-score-wrap">
+        <div id="scfScoreCircle" class="sc-score-circle">
+          <span id="scfScoreNumber" class="sc-score-number"></span>
+          <span class="sc-score-denom">/100</span>
+        </div>
+        <p id="scfScoreLabel" class="sc-score-label"></p>
+      </div>
+      <div class="sc-feedback-items">
+        <div id="scfFix1" class="sc-feedback-item">
+          <span class="sc-fb-badge sc-fb-fix">Fix</span>
+          <p class="sc-fb-title" id="scfFix1Title"></p>
+          <p class="sc-fb-diff"><span class="sc-fb-before" id="scfFix1Before"></span> → <span class="sc-fb-after" id="scfFix1After"></span></p>
+        </div>
+        <div id="scfFix2" class="sc-feedback-item">
+          <span class="sc-fb-badge sc-fb-fix">Fix</span>
+          <p class="sc-fb-title" id="scfFix2Title"></p>
+          <p class="sc-fb-diff"><span class="sc-fb-before" id="scfFix2Before"></span> → <span class="sc-fb-after" id="scfFix2After"></span></p>
+        </div>
+        <div id="scfUpgrade" class="sc-feedback-item">
+          <span class="sc-fb-badge sc-fb-upgrade">Upgrade 🚀</span>
+          <p class="sc-fb-title" id="scfUpgradeTitle"></p>
+          <p class="sc-fb-diff"><span class="sc-fb-before" id="scfUpgradeBefore"></span> → <span class="sc-fb-after" id="scfUpgradeAfter"></span></p>
+        </div>
+      </div>
+      <div class="sc-meta">
+        <span id="scfWordCount" class="sc-word-count">📝 0 words</span>
+        <span id="scfPromptTopic" class="sc-prompt-topic"></span>
+      </div>
+      <div class="sc-footer">Practice English with DailyPen</div>
+    </div>
+
+    <!-- Share Card: Score Only (off-screen) -->
     <div id="shareCard" class="share-card" aria-hidden="true">
       <div class="sc-header">
         <span class="sc-logo">✏️ DailyPen</span>
