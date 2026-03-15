@@ -695,62 +695,58 @@ body {
   margin-bottom: 8px;
 }
 
-/* === Fix Diff Layout === */
-.fix-diff {
-  display: flex;
-  align-items: stretch;
-  gap: 0;
+/* === Fix Stacked Layout === */
+.fix-stacked {
   margin-bottom: 10px;
   border-radius: 8px;
   overflow: hidden;
   border: 1px solid var(--border);
 }
 
-.fix-diff-side {
-  flex: 1;
-  padding: 10px 12px;
+.fix-stacked-row {
+  padding: 10px 14px;
 }
 
-.fix-diff-before {
+.fix-stacked-before {
   background: #fef2f2;
+  border-bottom: 1px solid var(--border);
 }
 
-.fix-diff-after {
+.fix-stacked-after {
   background: #f0fdf4;
 }
 
-.fix-diff-arrow {
-  display: flex;
-  align-items: center;
-  padding: 0 6px;
-  background: var(--bg);
-  font-size: 1rem;
-  color: var(--text-light);
-  flex-shrink: 0;
-}
-
-.fix-diff-label {
+.fix-stacked-label {
   font-size: 0.7rem;
   font-weight: 600;
   color: var(--text-light);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  display: block;
   margin-bottom: 4px;
 }
 
-.fix-diff-text {
+.fix-stacked-text {
   font-size: 0.9rem;
   line-height: 1.5;
   color: var(--text);
 }
 
-.fix-diff-highlight {
-  color: var(--green);
-  font-weight: 600;
+.fix-stacked-before .fix-stacked-text {
+  color: var(--text);
 }
 
-.fix-diff-before .fix-diff-text {
-  color: var(--red);
+.fix-stacked-before .fix-stacked-text .fix-hl {
+  background: #fecaca;
+  border-radius: 3px;
+  padding: 0 2px;
+}
+
+.fix-stacked-after .fix-stacked-text .fix-hl {
+  background: #bbf7d0;
+  border-radius: 3px;
+  padding: 0 2px;
+  font-weight: 600;
 }
 
 .tutor-note {

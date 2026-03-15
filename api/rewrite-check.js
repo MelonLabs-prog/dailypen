@@ -19,26 +19,32 @@ export default async function handler(req, res) {
 
     const ai = new GoogleGenAI({ apiKey });
 
-    const prompt = `You are a friendly English tutor. A student was given a rewrite challenge.
+    const prompt = `You are a grammar and spelling checker for an English learner's rewrite attempt.
 
-Original sentence (with errors): "${original}"
-Suggested improvement: "${improved}"
-Student's rewrite attempt: "${rewrite}"
+The student's original sentence had an error. Here is the corrected reference:
+Reference (correct version): "${improved}"
 
-Give brief, encouraging feedback on their rewrite. Compare it to the suggested improvement.
+The student tried to rewrite it. Here is their attempt:
+Student's rewrite: "${rewrite}"
+
+Your ONLY job is to check:
+1. Does the student's rewrite fix the original grammar/spelling error?
+2. Are there any NEW grammar or spelling mistakes in their rewrite?
+
+Do NOT check style, word choice, or suggest alternative phrasings. Do NOT suggest rewording. Only check grammar and spelling correctness against the reference.
 
 IMPORTANT: Respond with valid JSON only, no markdown, no code fences.
 
 {
   "rating": "great" | "good" | "try_again",
-  "feedback": "1-2 sentence encouraging feedback. Be specific about what they got right or what to adjust.",
-  "tip": "Optional short tip if rating is not 'great', otherwise null"
+  "feedback": "1-2 sentence feedback about grammar/spelling only. Be encouraging.",
+  "tip": "If there is a grammar/spelling issue, point it out briefly. Otherwise null."
 }
 
 Rating guide:
-- "great": rewrite captures the correction well (doesn't need to be word-for-word identical)
-- "good": mostly correct but missed a small detail
-- "try_again": still has the original error or introduced new issues`;
+- "great": grammar and spelling are correct (doesn't need to match reference word-for-word)
+- "good": mostly correct but has a minor grammar/spelling issue
+- "try_again": still has the original error or introduced new grammar/spelling mistakes`;
 
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',

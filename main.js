@@ -75,6 +75,10 @@ async function loadPrompts(refresh = false) {
         { prompt: 'Technology is changing how people communicate around the world. Do you think this is mostly positive or negative? Why?', vocab: ['connection', 'interact', 'social media', 'meaningful'], source: 'General' },
         { prompt: 'Think about a news story you heard recently. What happened and what is your opinion?', vocab: ['headline', 'significant', 'impact', 'debate'], source: 'General' },
       ],
+      describe: [
+        { prompt: 'Imagine you are standing in the middle of a night market in Bangkok. Colourful lights hang above hundreds of food stalls. The air is warm and full of the smell of grilled meat and sweet mango. Describe everything you see, hear, and feel.', vocab: ['vibrant', 'aroma', 'bustling', 'stall', 'sizzle'] },
+        { prompt: 'Picture a quiet mountain cabin on a snowy morning. You just woke up and look out the window. Describe the scene outside and how it makes you feel.', vocab: ['serene', 'blanket of snow', 'breathtaking', 'cozy', 'stillness'] },
+      ],
       random: [
         { prompt: 'If you could wake up tomorrow with one new skill, what would it be and why?', vocab: ['master', 'ambitious', 'transform', 'passion'] },
       ],
@@ -307,6 +311,55 @@ document.getElementById('submitJournalBtn').addEventListener('click', async () =
   }
 });
 
+// === Inline Diff Highlighting ===
+function escapeHTML(str) {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function highlightDiff(original, fixed) {
+  const origWords = original.split(/\s+/);
+  const fixWords = fixed.split(/\s+/);
+  const m = origWords.length, n = fixWords.length;
+
+  // LCS dp
+  const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      if (origWords[i - 1].toLowerCase() === fixWords[j - 1].toLowerCase()) {
+        dp[i][j] = dp[i - 1][j - 1] + 1;
+      } else {
+        dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+      }
+    }
+  }
+
+  // Backtrack
+  const origInLCS = new Set();
+  const fixInLCS = new Set();
+  let i = m, j = n;
+  while (i > 0 && j > 0) {
+    if (origWords[i - 1].toLowerCase() === fixWords[j - 1].toLowerCase()) {
+      origInLCS.add(i - 1);
+      fixInLCS.add(j - 1);
+      i--; j--;
+    } else if (dp[i - 1][j] > dp[i][j - 1]) {
+      i--;
+    } else {
+      j--;
+    }
+  }
+
+  const origHTML = origWords.map((w, idx) =>
+    origInLCS.has(idx) ? escapeHTML(w) : `<span class="fix-hl">${escapeHTML(w)}</span>`
+  ).join(' ');
+
+  const fixHTML = fixWords.map((w, idx) =>
+    fixInLCS.has(idx) ? escapeHTML(w) : `<span class="fix-hl">${escapeHTML(w)}</span>`
+  ).join(' ');
+
+  return { origHTML, fixHTML };
+}
+
 // === Render Feedback ===
 function getScoreTier(score) {
   if (score >= 85) return 'score-great';
@@ -348,16 +401,18 @@ function renderFeedback(data) {
   const fix1 = data.fixes?.[0];
   if (fix1) {
     document.getElementById('fix1Title').textContent = fix1.title;
-    document.getElementById('fix1Original').textContent = fix1.original || '';
-    document.getElementById('fix1Fix').textContent = fix1.fix;
+    const diff1 = highlightDiff(fix1.original || '', fix1.fix);
+    document.getElementById('fix1Original').innerHTML = diff1.origHTML;
+    document.getElementById('fix1Fix').innerHTML = diff1.fixHTML;
     document.getElementById('fix1Note').textContent = fix1.note;
   }
 
   const fix2 = data.fixes?.[1];
   if (fix2) {
     document.getElementById('fix2Title').textContent = fix2.title;
-    document.getElementById('fix2Original').textContent = fix2.original || '';
-    document.getElementById('fix2Fix').textContent = fix2.fix;
+    const diff2 = highlightDiff(fix2.original || '', fix2.fix);
+    document.getElementById('fix2Original').innerHTML = diff2.origHTML;
+    document.getElementById('fix2Fix').innerHTML = diff2.fixHTML;
     document.getElementById('fix2Note').textContent = fix2.note;
     document.getElementById('fix2Card').hidden = false;
   } else {
@@ -368,8 +423,9 @@ function renderFeedback(data) {
   const upgrade = data.upgrade;
   if (upgrade) {
     document.getElementById('upgradeTitle').textContent = upgrade.title;
-    document.getElementById('upgradeOriginal').textContent = upgrade.original || '';
-    document.getElementById('upgradeFix').textContent = upgrade.fix;
+    const diffUp = highlightDiff(upgrade.original || '', upgrade.fix);
+    document.getElementById('upgradeOriginal').innerHTML = diffUp.origHTML;
+    document.getElementById('upgradeFix').innerHTML = diffUp.fixHTML;
     document.getElementById('upgradeNote').textContent = upgrade.note;
   }
 

@@ -78,6 +78,12 @@ IMPORTANT: You must respond with valid JSON only, no markdown, no code fences.
       "source": "Today in History"
     }
   ],
+  "describe": [
+    {
+      "prompt": "A vivid description of an imaginary scene for the user to describe in English (e.g. 'Imagine a busy street market in Southeast Asia at sunset. Describe what you see, hear, and smell.')",
+      "vocab": ["word1", "phrase2", "word3"]
+    }
+  ],
   "random": [
     {
       "prompt": "A fun, creative, or unexpected prompt",
@@ -89,9 +95,10 @@ IMPORTANT: You must respond with valid JSON only, no markdown, no code fences.
 Guidelines:
 - Reflect prompts: warm, personal, encourage self-expression (e.g. "What made you smile today?", "Describe a moment you felt proud of yourself recently")
 - World prompts: MUST include at least 1 "Today in History" prompt about a real event that happened on today's date (${today}). The rest should be based on the trending articles above, simplified to B1-B2 level. Always end with an opinion question.
+- Describe prompts: Paint a vivid imaginary scene (a place, a moment, a situation) and ask the user to describe it in detail. Include sensory details (sight, sound, smell, feeling). The scene should be interesting and culturally diverse. These are NOT questions — they are scene-setting prompts that encourage descriptive writing.
 - Random prompts: creative, fun, thought-provoking
 - Vocab words should be B2-C1 level — challenging but useful. Include a mix of adjectives, verbs, and phrases.
-- Generate exactly 3 reflect, 3 world (at least 1 must be "Today in History"), and 2 random prompts.
+- Generate exactly 3 reflect, 3 world (at least 1 must be "Today in History"), 2 describe, and 2 random prompts.
 - Be creative and varied — avoid generic prompts.`;
 
     const response = await ai.models.generateContent({
@@ -106,7 +113,7 @@ Guidelines:
     const prompts = JSON.parse(text);
 
     // Validate structure
-    if (!prompts.reflect || !prompts.world || !prompts.random) {
+    if (!prompts.reflect || !prompts.world || !prompts.random || !prompts.describe) {
       throw new Error('Incomplete prompt response');
     }
 
@@ -125,6 +132,10 @@ Guidelines:
       world: [
         { prompt: 'Many people around the world are discussing how technology changes the way we communicate. Do you think technology brings people closer together or pushes them apart? Why?', vocab: ['connection', 'interact', 'social media', 'meaningful'], source: 'General' },
         { prompt: 'Today, think about a news story you heard recently. What happened and what is your opinion about it?', vocab: ['headline', 'significant', 'impact', 'debate'], source: 'General' },
+      ],
+      describe: [
+        { prompt: 'Imagine you are standing in the middle of a night market in Bangkok. Colourful lights hang above hundreds of food stalls. The air is warm and full of the smell of grilled meat and sweet mango. Describe everything you see, hear, and feel.', vocab: ['vibrant', 'aroma', 'bustling', 'stall', 'sizzle'] },
+        { prompt: 'Picture a quiet mountain cabin on a snowy morning. You just woke up and look out the window. Describe the scene outside and how it makes you feel.', vocab: ['serene', 'blanket of snow', 'breathtaking', 'cozy', 'stillness'] },
       ],
       random: [
         { prompt: 'If you could wake up tomorrow with one new skill or ability, what would it be and why?', vocab: ['master', 'ambitious', 'transform', 'passion'] },

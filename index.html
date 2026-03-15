@@ -33,6 +33,7 @@
       <div class="prompt-tabs">
         <button class="prompt-tab active" data-category="reflect">💭 Reflect</button>
         <button class="prompt-tab" data-category="world">🌍 World</button>
+        <button class="prompt-tab" data-category="describe">🖼️ Describe</button>
         <button class="prompt-tab" data-category="random">🎲 Random</button>
       </div>
 
@@ -170,15 +171,14 @@
       <div id="fix1Card" class="card fix-card">
         <span class="card-badge badge-fix">Gentle Fix</span>
         <h3 id="fix1Title"></h3>
-        <div class="fix-diff">
-          <div class="fix-diff-side fix-diff-before">
-            <p class="fix-diff-label">You wrote</p>
-            <p id="fix1Original" class="fix-diff-text"></p>
+        <div class="fix-stacked">
+          <div class="fix-stacked-row fix-stacked-before">
+            <span class="fix-stacked-label">You wrote:</span>
+            <p id="fix1Original" class="fix-stacked-text"></p>
           </div>
-          <div class="fix-diff-arrow">→</div>
-          <div class="fix-diff-side fix-diff-after">
-            <p class="fix-diff-label">Try this</p>
-            <p id="fix1Fix" class="fix-diff-text fix-diff-highlight"></p>
+          <div class="fix-stacked-row fix-stacked-after">
+            <span class="fix-stacked-label">Try this:</span>
+            <p id="fix1Fix" class="fix-stacked-text"></p>
           </div>
         </div>
         <p id="fix1Note" class="tutor-note"></p>
@@ -187,15 +187,14 @@
       <div id="fix2Card" class="card fix-card">
         <span class="card-badge badge-fix">Gentle Fix</span>
         <h3 id="fix2Title"></h3>
-        <div class="fix-diff">
-          <div class="fix-diff-side fix-diff-before">
-            <p class="fix-diff-label">You wrote</p>
-            <p id="fix2Original" class="fix-diff-text"></p>
+        <div class="fix-stacked">
+          <div class="fix-stacked-row fix-stacked-before">
+            <span class="fix-stacked-label">You wrote:</span>
+            <p id="fix2Original" class="fix-stacked-text"></p>
           </div>
-          <div class="fix-diff-arrow">→</div>
-          <div class="fix-diff-side fix-diff-after">
-            <p class="fix-diff-label">Try this</p>
-            <p id="fix2Fix" class="fix-diff-text fix-diff-highlight"></p>
+          <div class="fix-stacked-row fix-stacked-after">
+            <span class="fix-stacked-label">Try this:</span>
+            <p id="fix2Fix" class="fix-stacked-text"></p>
           </div>
         </div>
         <p id="fix2Note" class="tutor-note"></p>
@@ -205,15 +204,14 @@
       <div class="card upgrade-card">
         <span class="card-badge badge-upgrade">Native Upgrade 🚀</span>
         <h3 id="upgradeTitle"></h3>
-        <div class="fix-diff">
-          <div class="fix-diff-side fix-diff-before">
-            <p class="fix-diff-label">You wrote</p>
-            <p id="upgradeOriginal" class="fix-diff-text"></p>
+        <div class="fix-stacked">
+          <div class="fix-stacked-row fix-stacked-before">
+            <span class="fix-stacked-label">You wrote:</span>
+            <p id="upgradeOriginal" class="fix-stacked-text"></p>
           </div>
-          <div class="fix-diff-arrow">→</div>
-          <div class="fix-diff-side fix-diff-after">
-            <p class="fix-diff-label">Natives say</p>
-            <p id="upgradeFix" class="fix-diff-text fix-diff-highlight"></p>
+          <div class="fix-stacked-row fix-stacked-after">
+            <span class="fix-stacked-label">Natives say:</span>
+            <p id="upgradeFix" class="fix-stacked-text"></p>
           </div>
         </div>
         <p id="upgradeNote" class="tutor-note"></p>
