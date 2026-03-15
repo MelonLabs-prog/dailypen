@@ -24,7 +24,13 @@ Feedback Rules:
 
 5. Provide a "rewrite challenge" — pick the student's weakest sentence and show the improved version. Ask them to try rewriting it.
 
-6. Score across four dimensions (each 0-100):
+6. Provide a "fullCorrected" section with 3 versions of the student's ENTIRE journal entry:
+   - "clean": Fix ONLY grammar, spelling, and punctuation errors. Change absolutely nothing else. Keep every word, phrase, and sentence structure the student chose. This should read exactly like the student wrote it, just error-free.
+   - "polished": Fix errors AND make minimal smoothing (e.g. better connectors, clearer phrasing) but KEEP the student's personality, tone, word choices, and writing style. Do NOT make it sound like AI wrote it.
+   - "native": Show how a native speaker might write the same journal entry about the same topic with the same ideas, feelings, and personality. Still keep it casual and personal — NOT formal or academic.
+   IMPORTANT: All 3 versions must preserve the student's original tone, personality, and ideas. Do NOT add new ideas or remove any. The goal is to show the student what THEIR writing looks like at different correction levels.
+
+7. Score across four dimensions (each 0-100):
    - grammar: sentence structure, verb tenses, articles, prepositions, punctuation
    - vocabulary: word choice, range, naturalness
    - coherence: logical flow, how well ideas connect, paragraph structure
@@ -74,8 +80,13 @@ IMPORTANT: Respond with valid JSON only, no markdown, no code fences.
     "improved": "The improved version",
     "hint": "A short hint to help them rewrite it"
   },
+  "fullCorrected": {
+    "clean": "The student's full journal with ONLY grammar/spelling/punctuation fixed. Nothing else changed.",
+    "polished": "The student's full journal with errors fixed and minimal smoothing, keeping their voice.",
+    "native": "How a native speaker would write the same journal entry with the same ideas and personality."
+  },
   "wordCount": 0
-}`;
+}
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {

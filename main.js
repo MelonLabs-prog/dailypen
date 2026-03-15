@@ -450,14 +450,54 @@ function renderFeedback(data) {
     document.getElementById('rewriteCard').hidden = true;
   }
 
+  // Full corrected versions
+  const fc = data.fullCorrected;
+  if (fc) {
+    window._fcData = fc;
+    window._fcActive = 'clean';
+    document.getElementById('fcContent').textContent = fc.clean || '';
+    document.getElementById('fcDesc').textContent = 'Only grammar & spelling fixed — your words, your voice.';
+    document.querySelectorAll('.fc-tab').forEach(t => t.classList.toggle('active', t.dataset.fc === 'clean'));
+    document.getElementById('fullCorrectedCard').hidden = false;
+  } else {
+    document.getElementById('fullCorrectedCard').hidden = true;
+  }
+
   // Hide rewrite card initially — user must click "Try Rewrite Challenge"
   document.getElementById('rewriteCard').hidden = true;
 
   showStep(feedbackSection);
 }
 
+// Full corrected version tabs
+const fcDescs = {
+  clean: 'Only grammar & spelling fixed — your words, your voice.',
+  polished: 'Smoother flow with minimal tweaks — still your style.',
+  native: 'How a native speaker might write the same ideas.',
+};
+document.querySelectorAll('.fc-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const key = tab.dataset.fc;
+    if (!window._fcData) return;
+    document.querySelectorAll('.fc-tab').forEach(t => t.classList.toggle('active', t === tab));
+    document.getElementById('fcContent').textContent = window._fcData[key] || '';
+    document.getElementById('fcDesc').textContent = fcDescs[key] || '';
+    window._fcActive = key;
+  });
+});
+
+document.getElementById('fcCopyBtn').addEventListener('click', async () => {
+  const text = document.getElementById('fcContent').textContent;
+  try {
+    await navigator.clipboard.writeText(text);
+    const btn = document.getElementById('fcCopyBtn');
+    btn.textContent = '✅ Copied!';
+    setTimeout(() => { btn.textContent = '📋 Copy'; }, 2000);
+  } catch { /* ignore */ }
+});
+
 // Rewrite challenge flow: hide feedback, show only rewrite
-const feedbackCards = () => feedbackSection.querySelectorAll('.welldone-card, .score-card, .fix-card, .upgrade-card');
+const feedbackCards = () => feedbackSection.querySelectorAll('.welldone-card, .score-card, .fix-card, .upgrade-card, .fullcorrected-card');
 
 document.getElementById('tryRewriteBtn').addEventListener('click', () => {
   feedbackCards().forEach(c => c.hidden = true);
