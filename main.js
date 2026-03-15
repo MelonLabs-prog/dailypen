@@ -75,10 +75,6 @@ async function loadPrompts(refresh = false) {
         { prompt: 'Technology is changing how people communicate around the world. Do you think this is mostly positive or negative? Why?', vocab: ['connection', 'interact', 'social media', 'meaningful'], source: 'General' },
         { prompt: 'Think about a news story you heard recently. What happened and what is your opinion?', vocab: ['headline', 'significant', 'impact', 'debate'], source: 'General' },
       ],
-      describe: [
-        { prompt: 'Imagine you are standing in the middle of a night market in Bangkok. Colourful lights hang above hundreds of food stalls. The air is warm and full of the smell of grilled meat and sweet mango. Describe everything you see, hear, and feel.', vocab: ['vibrant', 'aroma', 'bustling', 'stall', 'sizzle'] },
-        { prompt: 'Picture a quiet mountain cabin on a snowy morning. You just woke up and look out the window. Describe the scene outside and how it makes you feel.', vocab: ['serene', 'blanket of snow', 'breathtaking', 'cozy', 'stillness'] },
-      ],
       random: [
         { prompt: 'If you could wake up tomorrow with one new skill, what would it be and why?', vocab: ['master', 'ambitious', 'transform', 'passion'] },
       ],
