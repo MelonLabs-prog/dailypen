@@ -1,4 +1,7 @@
 import html2canvas from 'html2canvas';
+import { inject } from '@vercel/analytics';
+
+inject();
 
 // === Sections ===
 const landingSection = document.getElementById('landingSection');

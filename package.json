@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@google/genai": "^1.0.0",
+    "@vercel/analytics": "^2.0.1",
     "feedback-tool": "file:../feedback-tool",
     "html2canvas": "^1.4.1",
     "rss-parser": "^3.13.0",
