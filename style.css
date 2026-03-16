@@ -146,6 +146,42 @@ body {
   cursor: not-allowed;
 }
 
+/* === Mobile CTA === */
+.mobile-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 8px 0 4px;
+}
+
+.mobile-cta-desc {
+  text-align: center;
+  font-size: 1rem;
+  color: var(--text-light);
+  line-height: 1.6;
+}
+
+.btn-write-now {
+  display: inline-block;
+  padding: 16px 44px;
+  background: linear-gradient(135deg, #219ebc, #1a7a94);
+  color: white;
+  font-size: 1.2rem;
+  font-weight: 800;
+  border-radius: 999px;
+  text-decoration: none;
+  box-shadow: 0 6px 20px rgba(33, 158, 188, 0.4);
+  letter-spacing: 0.02em;
+  transition: all 0.2s ease;
+}
+
+.btn-write-now:hover {
+  background: linear-gradient(135deg, #1a7a94, #155f75);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 26px rgba(33, 158, 188, 0.5);
+}
+
 /* === Landing === */
 .landing-header {
   text-align: center;

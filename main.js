@@ -9,6 +9,17 @@ const feedbackSection = document.getElementById('feedbackSection');
 const errorSection = document.getElementById('errorSection');
 const allSections = [landingSection, promptSection, writeSection, loadingSection, feedbackSection, errorSection];
 
+// === Environment Detection ===
+const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+const cameFromApp = new URLSearchParams(window.location.search).get('src') === 'app';
+
+// === Mobile landing: skip landing UI, show Write Now CTA ===
+const mobileCta = document.getElementById('mobileCta');
+if (isMobile && !cameFromApp) {
+  mobileCta.hidden = false;
+  landingSection.hidden = true;
+}
+
 // === State ===
 let promptsData = null;
 let selectedPrompt = null;
