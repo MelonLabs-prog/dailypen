@@ -683,44 +683,50 @@ shareModal.addEventListener('click', (e) => {
   if (e.target === shareModal) shareModal.hidden = true;
 });
 
-// Copy image
+// Copy Text — copies a formatted text scorecard to clipboard
 document.getElementById('copyImgBtn').addEventListener('click', async () => {
-  if (!lastCanvas) return;
+  if (!lastFeedbackData) return;
+  const btn = document.getElementById('copyImgBtn');
+  btn.disabled = true;
   try {
-    await new Promise((resolve, reject) => {
-      lastCanvas.toBlob(async (blob) => {
-        try {
-          await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-          resolve();
-        } catch (e) { reject(e); }
-      }, 'image/png');
-    });
-    showShareConfirm('✅ Image copied! Paste it in the community 🎉');
+    await navigator.clipboard.writeText(buildShareText(lastFeedbackData));
+    showShareConfirm('✅ Copied! Paste it in the comments 🎉');
   } catch {
-    showShareConfirm('❌ Copy not supported. Use Download instead.');
+    showShareConfirm('❌ Could not copy. Please try again.');
+  } finally {
+    btn.disabled = false;
   }
 });
 
-// Download image
-document.getElementById('downloadImgBtn').addEventListener('click', () => {
+// Save to Photos (mobile) / Download Image (desktop)
+document.getElementById('downloadImgBtn').addEventListener('click', async () => {
   if (!lastCanvas) return;
-  const url = lastCanvas.toDataURL('image/png');
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'dailypen-progress.png';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  showShareConfirm('📥 Image saved!');
-});
-
-// Copy journal text
-document.getElementById('copyJournalBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('downloadImgBtn');
+  btn.disabled = true;
   try {
-    await navigator.clipboard.writeText(journalInput.value);
-    showShareConfirm('📝 Journal text copied!');
-  } catch {
-    showShareConfirm('❌ Could not copy text.');
+    const blob = await new Promise(resolve => lastCanvas.toBlob(resolve, 'image/png'));
+    const file = new File([blob], 'dailypen-progress.png', { type: 'image/png' });
+    if (navigator.canShare?.({ files: [file] })) {
+      await navigator.share({ files: [file], title: 'My DailyPen Progress' });
+      showShareConfirm('✅ Shared!');
+    } else {
+      // Desktop fallback: trigger file download
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'dailypen-progress.png';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showShareConfirm('📥 Image saved!');
+    }
+  } catch (err) {
+    if (err.name !== 'AbortError') {
+      showShareConfirm('❌ Could not save. Please try again.');
+    }
+  } finally {
+    btn.disabled = false;
   }
 });
 
@@ -728,6 +734,31 @@ function showShareConfirm(msg) {
   shareConfirm.textContent = msg;
   shareConfirm.hidden = false;
   setTimeout(() => { shareConfirm.hidden = true; }, 4000);
+}
+
+// === Share text builder ===
+function buildShareText(data) {
+  const scores = data.scores || {};
+  const overall = scores.overall ?? '--';
+  const label = data.scoreLabel ? ` — ${data.scoreLabel}` : '';
+  let text = `✏️ DailyPen: ${overall}/100${label}\n`;
+  text += `Grammar: ${scores.grammar ?? '--'} | Vocabulary: ${scores.vocabulary ?? '--'} | Coherence: ${scores.coherence ?? '--'} | Expression: ${scores.expression ?? '--'}`;
+
+  const section = (emoji, item) => {
+    if (!item?.fix) return '';
+    let s = `\n\n${emoji} ${item.title}`;
+    if (item.original) s += `\n\u201c${item.original}\u201d → \u201c${item.fix}\u201d`;
+    else s += `\n\u201c${item.fix}\u201d`;
+    if (item.note) s += `\n${item.note}`;
+    return s;
+  };
+
+  text += section('✏️ Fix 1 —', data.fixes?.[0]);
+  text += section('✏️ Fix 2 —', data.fixes?.[1]);
+  text += section('🚀 Upgrade —', data.upgrade);
+  text += `\n\n📝 ${data.wordCount || 0} words`;
+  text += `\n\nPractice English with DailyPen 🌟`;
+  return text;
 }
 
 // === Share Card ===
