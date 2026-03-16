@@ -208,6 +208,18 @@ function goToWrite() {
     updateWriteTimer();
   }, 1000);
 
+  // Restore draft from localStorage if textarea is empty
+  if (!journalInput.value) {
+    try {
+      const draft = localStorage.getItem('dailypen_draft');
+      if (draft) {
+        journalInput.value = draft;
+        const words = draft.trim().split(/\s+/).filter(Boolean).length;
+        wordCountEl.textContent = `${words} word${words !== 1 ? 's' : ''}`;
+      }
+    } catch { /* ignore */ }
+  }
+
   document.getElementById('journalInput').focus();
 }
 
@@ -223,6 +235,8 @@ const wordCountEl = document.getElementById('wordCount');
 journalInput.addEventListener('input', () => {
   const words = journalInput.value.trim().split(/\s+/).filter(Boolean).length;
   wordCountEl.textContent = `${words} word${words !== 1 ? 's' : ''}`;
+  // Auto-save draft to localStorage
+  try { localStorage.setItem('dailypen_draft', journalInput.value); } catch { /* ignore */ }
 });
 
 function updateWriteTimer() {
@@ -300,6 +314,8 @@ document.getElementById('submitJournalBtn').addEventListener('click', async () =
   }
 
   clearInterval(writeTimerInterval);
+  // Clear draft on successful submit
+  try { localStorage.removeItem('dailypen_draft'); } catch { /* ignore */ }
   showStep(loadingSection);
 
   try {
@@ -592,6 +608,7 @@ document.getElementById('errorResetBtn').addEventListener('click', () => {
 document.getElementById('writeAgainBtn').addEventListener('click', () => {
   journalInput.value = '';
   wordCountEl.textContent = '0 words';
+  try { localStorage.removeItem('dailypen_draft'); } catch { /* ignore */ }
   selectedPrompt = null;
   selectedVocab = [];
   document.getElementById('lifelineResults').innerHTML = '';
