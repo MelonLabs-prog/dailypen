@@ -23,6 +23,16 @@ if (isMobile && !cameFromApp) {
   landingSection.hidden = true;
 }
 
+// Write Now button — break out of iframe / in-app browser into system browser
+document.getElementById('writeNowBtn').addEventListener('click', () => {
+  const url = window.location.origin + window.location.pathname + '?src=app';
+  const win = window.open(url, '_blank');
+  if (!win) {
+    // Fallback: navigate the top-level frame out of the iframe
+    try { window.top.location.href = url; } catch { window.location.href = url; }
+  }
+});
+
 // === State ===
 let promptsData = null;
 let selectedPrompt = null;
