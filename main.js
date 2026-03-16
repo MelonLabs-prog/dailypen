@@ -26,11 +26,16 @@ if (isMobile && !cameFromApp) {
 // Write Now button — break out of iframe / in-app browser into system browser
 document.getElementById('writeNowBtn').addEventListener('click', () => {
   const url = window.location.origin + window.location.pathname + '?src=app';
-  const win = window.open(url, '_blank');
-  if (!win) {
-    // Fallback: navigate the top-level frame out of the iframe
-    try { window.top.location.href = url; } catch { window.location.href = url; }
+  const inIframe = window.self !== window.top;
+
+  if (inIframe) {
+    // Navigate the top-level frame directly (works cross-origin on iOS)
+    try { window.top.location.href = url; return; } catch { /* sandboxed */ }
   }
+
+  // Outside iframe or sandbox blocked top navigation — try new tab
+  const win = window.open(url, '_blank');
+  if (!win) window.location.href = url;
 });
 
 // === State ===
