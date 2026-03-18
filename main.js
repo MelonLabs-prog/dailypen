@@ -25,7 +25,11 @@ if (isMobile && !cameFromApp) {
 
 // Write Now button — break out of iframe / in-app browser into system browser
 document.getElementById('writeNowBtn').addEventListener('click', () => {
-  const url = window.location.origin + window.location.pathname + '?src=app';
+  // Forward the access key so the middleware doesn't block the new page
+  const currentKey = new URLSearchParams(window.location.search).get('key');
+  const params = new URLSearchParams({ src: 'app' });
+  if (currentKey) params.set('key', currentKey);
+  const url = window.location.origin + window.location.pathname + '?' + params.toString();
   const inIframe = window.self !== window.top;
 
   if (inIframe) {
