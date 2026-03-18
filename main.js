@@ -1,5 +1,5 @@
 import html2canvas from 'html2canvas';
-import { inject } from '@vercel/analytics';
+import { inject, track } from '@vercel/analytics';
 
 inject();
 
@@ -343,6 +343,7 @@ document.getElementById('submitJournalBtn').addEventListener('click', async () =
   }
 
   clearInterval(writeTimerInterval);
+  track('submission_started');
   // Clear draft on successful submit
   try { localStorage.removeItem('dailypen_draft'); } catch { /* ignore */ }
   showStep(loadingSection);
@@ -361,6 +362,7 @@ document.getElementById('submitJournalBtn').addEventListener('click', async () =
 
     const data = await res.json();
     lastFeedbackData = data;
+    track('feedback_received', { overall_score: data.scores?.overall });
     renderFeedback(data);
   } catch (err) {
     showError(err.message || 'Something went wrong. Please try again.');
@@ -646,6 +648,26 @@ document.getElementById('writeAgainBtn').addEventListener('click', () => {
   showStep(promptSection);
 });
 
+// === Share Nudge ===
+const nudgeCopyBtn = document.getElementById('nudgeCopyBtn');
+const nudgeConfirm = document.getElementById('nudgeConfirm');
+
+nudgeCopyBtn.addEventListener('click', async () => {
+  if (!lastFeedbackData) return;
+  nudgeCopyBtn.disabled = true;
+  try {
+    await navigator.clipboard.writeText(buildShareText(lastFeedbackData));
+    track('share_text_copied');
+    nudgeConfirm.textContent = '✅ Copied! Paste it in the comments 🎉';
+  } catch {
+    nudgeConfirm.textContent = '❌ Could not copy. Please try again.';
+  } finally {
+    nudgeCopyBtn.disabled = false;
+    nudgeConfirm.hidden = false;
+    setTimeout(() => { nudgeConfirm.hidden = true; }, 4000);
+  }
+});
+
 // === Share ===
 const shareModal = document.getElementById('shareModal');
 const sharePreviewImg = document.getElementById('sharePreviewImg');
@@ -708,6 +730,7 @@ document.getElementById('copyImgBtn').addEventListener('click', async () => {
   btn.disabled = true;
   try {
     await navigator.clipboard.writeText(buildShareText(lastFeedbackData));
+    track('share_text_copied');
     showShareConfirm('✅ Copied! Paste it in the comments 🎉');
   } catch {
     showShareConfirm('❌ Could not copy. Please try again.');
@@ -726,6 +749,7 @@ document.getElementById('downloadImgBtn').addEventListener('click', async () => 
     const file = new File([blob], 'dailypen-progress.png', { type: 'image/png' });
     if (navigator.canShare?.({ files: [file] })) {
       await navigator.share({ files: [file], title: 'My DailyPen Progress' });
+      track('share_image_downloaded');
       showShareConfirm('✅ Shared!');
     } else {
       // Desktop fallback: trigger file download
@@ -737,6 +761,7 @@ document.getElementById('downloadImgBtn').addEventListener('click', async () => 
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+      track('share_image_downloaded');
       showShareConfirm('📥 Image saved!');
     }
   } catch (err) {

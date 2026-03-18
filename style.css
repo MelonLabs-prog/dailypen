@@ -992,6 +992,48 @@ body {
   justify-content: flex-end;
 }
 
+/* === Share Nudge === */
+.share-nudge {
+  background: linear-gradient(135deg, #fffbeb, #fef3c7);
+  border: 2px solid #fbbf24;
+  border-radius: var(--radius);
+  padding: 16px;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.nudge-text {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #92400e;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.btn-nudge-copy {
+  padding: 10px 24px;
+  background: #f59e0b;
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 700;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-nudge-copy:hover {
+  background: #d97706;
+  transform: translateY(-1px);
+}
+
+.nudge-confirm {
+  font-size: 0.8rem;
+  color: #059669;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
 /* === Feedback Actions === */
 .feedback-actions {
   display: flex;
